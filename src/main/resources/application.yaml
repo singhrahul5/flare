@@ -1,0 +1,27 @@
+spring:
+  application:
+    name: flare
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+  properties:
+    hibernate:
+      format_sql: true
+  datasource:
+    uri: "${MYSQL_URI}/${MYSQL_DATABASE_NAME}"
+    username: ${MYSQL_USER}
+    password: ${MYSQL_PASSWORD}
+  data:
+    mongodb:
+      uri: "${MONGODB_URI}/${MONGODB_DATABASE_NAME}"
+      username: ${MONGODB_USER}
+      password: ${MONGODB_PASSWORD}
+logging:
+  level:
+    root: INFO             # Default logging level for the entire application
+    dev.some.flare: DEBUG   # Specific logging level for the 'dev.some.flare' package
+    org.springframework: DEBUG
+app:
+  security:
+    jwt-secret-key: ${JWT_SECRET_KEY}
