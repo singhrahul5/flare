@@ -19,7 +19,8 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.*;
+import org.springframework.security.crypto.password.DelegatingPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
 import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
@@ -105,8 +106,8 @@ public class JwtSecurityConfig {
 
                 if (lastPasswordUpdate != null && tokenIssuedAt.isBefore(lastPasswordUpdate)) {
                     OAuth2Error error = new OAuth2Error(OAuth2ErrorCodes.INVALID_TOKEN,
-                            "The " + jwt +" claim is not valid",null);
-
+                            "The " + jwt + " claim is not valid", null);
+                    logger.debug("The {} claim is not valid", jwt);
                     return OAuth2TokenValidatorResult.failure(error);
                 }
             }

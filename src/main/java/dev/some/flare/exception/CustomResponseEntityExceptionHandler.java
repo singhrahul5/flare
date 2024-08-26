@@ -2,6 +2,7 @@ package dev.some.flare.exception;
 
 import org.springframework.http.*;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.validation.FieldError;
 import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -9,13 +10,24 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import java.util.Map;
+import java.util.stream.Collectors;
+
 @RestControllerAdvice
 public class CustomResponseEntityExceptionHandler extends ResponseEntityExceptionHandler {
 
     @Override
-    protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
-        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(status, ex.getMessage());
-        problemDetail.setProperty("moreDetails", ex.getDetailMessageArguments());
+    protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex,
+                                                                  HttpHeaders headers, HttpStatusCode status,
+                                                                  WebRequest request) {
+        String errorMessage = ex.getFieldErrors().stream().findFirst().map(FieldError::getDefaultMessage).orElse("Bad" +
+                " Request");
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(status, errorMessage);
+
+        Map<String, String> detailErrorMessage =
+                ex.getFieldErrors().stream().collect(Collectors.toMap(FieldError::getField,
+                        FieldError::getDefaultMessage));
+        problemDetail.setProperty("detailErrorMessage", detailErrorMessage);
         return new ResponseEntity<>(problemDetail, headers, status);
     }
 
@@ -26,8 +38,11 @@ public class CustomResponseEntityExceptionHandler extends ResponseEntityExceptio
         return new ResponseEntity<>(problemDetail, status);
     }
 
-    @ExceptionHandler({NotAvailableException.class})
-    public ResponseEntity<ProblemDetail> handleNotAvailableException(Exception ex) {
+    @ExceptionHandler({
+            NotAvailableException.class,
+            EmailServiceException.class
+    })
+    public ResponseEntity<ProblemDetail> handleErrorResponseExceptions(Exception ex) {
         ErrorResponse errorResponse = (ErrorResponse) ex;
         return new ResponseEntity<>(errorResponse.getBody(), errorResponse.getHeaders(), errorResponse.getStatusCode());
     }

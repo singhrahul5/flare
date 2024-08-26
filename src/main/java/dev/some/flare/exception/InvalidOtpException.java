@@ -6,11 +6,10 @@ import org.springframework.http.ProblemDetail;
 import org.springframework.lang.NonNull;
 import org.springframework.web.ErrorResponse;
 
-public class NotAvailableException extends RuntimeException implements ErrorResponse {
+public class InvalidOtpException extends RuntimeException implements ErrorResponse {
+    private final HttpStatusCode statusCode = HttpStatus.UNAUTHORIZED;
 
-    private final HttpStatusCode statusCode = HttpStatus.CONFLICT;
-
-    public NotAvailableException(String message) {
+    public InvalidOtpException(String message) {
         super(message);
     }
 

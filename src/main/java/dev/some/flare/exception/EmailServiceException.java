@@ -6,12 +6,12 @@ import org.springframework.http.ProblemDetail;
 import org.springframework.lang.NonNull;
 import org.springframework.web.ErrorResponse;
 
-public class NotAvailableException extends RuntimeException implements ErrorResponse {
+public class EmailServiceException extends RuntimeException implements ErrorResponse {
 
-    private final HttpStatusCode statusCode = HttpStatus.CONFLICT;
+    private final HttpStatusCode statusCode = HttpStatus.INTERNAL_SERVER_ERROR;
 
-    public NotAvailableException(String message) {
-        super(message);
+    public EmailServiceException(String message, Throwable cause) {
+        super(message, cause);
     }
 
     @Override
@@ -23,6 +23,7 @@ public class NotAvailableException extends RuntimeException implements ErrorResp
     @Override
     @NonNull
     public ProblemDetail getBody() {
-        return ProblemDetail.forStatusAndDetail(statusCode, getMessage());
+        return ProblemDetail.forStatusAndDetail(statusCode, "Email sending failed due to a server error. Please try " +
+                "again later.");
     }
 }

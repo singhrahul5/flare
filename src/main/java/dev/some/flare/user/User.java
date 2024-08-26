@@ -7,7 +7,6 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 
@@ -21,7 +20,8 @@ import java.util.List;
         @Index(name = "idx_email", columnList = "email", unique = true)
 })
 public class User implements UserDetails {
-    @Id @GeneratedValue
+    @Id
+    @GeneratedValue
     private Long id;
 
     @Column(unique = true, nullable = false)
@@ -43,7 +43,8 @@ public class User implements UserDetails {
     private Role role;
 
     @Builder
-    public User(String username, String email, String password, Instant joinedAt, Instant passwordUpdatedAt, Role role) {
+    public User(String username, String email, String password, Instant joinedAt, Instant passwordUpdatedAt,
+                Role role) {
         this.username = username;
         this.email = email;
         this.password = password;

@@ -1,25 +1,35 @@
 package dev.some.flare.user;
 
+import dev.some.flare.auth.RegisterRequest;
+import dev.some.flare.auth.ResetPasswordVerifyOtpRequest;
+import dev.some.flare.exception.InvalidOtpException;
 import dev.some.flare.exception.NotAvailableException;
-import dev.some.flare.jwt.RegisterRequest;
+import dev.some.flare.utils.EmailService;
+import dev.some.flare.utils.OtpHashService;
+import dev.some.flare.utils.RandomIdGeneratorService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 
 @Service
 @RequiredArgsConstructor
 public class UserService implements UserDetailsService {
 
-    final private UserRepository userRepository;
-    final private PasswordEncoder passwordEncoder;
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final UserPasswordResetOtpRepository userPasswordResetOtpRepository;
+    private final RandomIdGeneratorService randomIdGeneratorService;
+    private final EmailService emailService;
+    private final OtpHashService otpHashService;
 
     @Override
-    public UserDetails loadUserByUsername(String usernameOrEmail) throws UsernameNotFoundException {
+    public User loadUserByUsername(String usernameOrEmail) throws UsernameNotFoundException {
         return userRepository.findByUsernameOrEmail(usernameOrEmail, usernameOrEmail)
                 .orElseThrow(() -> new UsernameNotFoundException("Wrong Credentials."));
     }
@@ -46,5 +56,54 @@ public class UserService implements UserDetailsService {
         return userRepository.findByUsername(username)
                 .map(User::getPasswordUpdatedAt)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found."));
+    }
+
+    public void updatePassword(String username, String password) {
+        if (userRepository.updatePasswordAndPasswordUpdatedAtByUsername(passwordEncoder.encode(password),
+                Instant.now(), username) != 1)
+            throw new UsernameNotFoundException("User not found.");
+    }
+
+    @Transactional
+    public void generateOtpAndSendMail(String usernameOrEmail) {
+        // load user
+        User user = loadUserByUsername(usernameOrEmail);
+        // generate otp
+        String otp = randomIdGeneratorService.generateOtp();
+
+        // create otp entry in db
+        Instant now = Instant.now();
+        UserPasswordResetOtp userPasswordResetOtp = UserPasswordResetOtp.builder()
+                .user(user)
+                .otp(otpHashService.hashOtp(otp)) // hash otp then store
+                .createdAt(now)
+                .expiresAt(now.plus(30, ChronoUnit.MINUTES))
+                .isUsed(false)
+                .build();
+
+        userPasswordResetOtpRepository.save(userPasswordResetOtp);
+
+        // if all good then send email to the user
+        emailService.sendPasswordResetMail(user.getEmail(), user.getUsername(), otp);
+    }
+
+    @Transactional
+    public void verifyOtpAndUpdatePassword(ResetPasswordVerifyOtpRequest resetPasswordVerifyOtpRequest) {
+        // load user
+        User user = loadUserByUsername(resetPasswordVerifyOtpRequest.getUsername());
+
+        // verify otp
+        String hashedOtp = otpHashService.hashOtp(resetPasswordVerifyOtpRequest.getOtp()); // hash otp before find
+        // operatiron
+        UserPasswordResetOtp userPasswordResetOtp = userPasswordResetOtpRepository
+                .findByUserAndOtpAndExpiresAtGreaterThanEqualAndIsUsedFalse(user, hashedOtp, Instant.now())
+                .orElseThrow(() -> new InvalidOtpException("Invalid otp."));
+
+        // set otp as used
+        userPasswordResetOtp.setUsed(true);
+        userPasswordResetOtpRepository.save(userPasswordResetOtp);
+
+        //update password
+        updatePassword(user.getUsername(), resetPasswordVerifyOtpRequest.getNewPassword());
     }
 }
