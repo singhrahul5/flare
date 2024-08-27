@@ -1,4 +1,4 @@
-package dev.some.flare.blog;
+package dev.some.flare.blog.reply;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -7,22 +7,18 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.index.CompoundIndexes;
 import org.springframework.data.mongodb.core.index.Indexed;
-import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.mongodb.core.mapping.DocumentReference;
 
 @Data
 @NoArgsConstructor
 @CompoundIndexes({
-        @CompoundIndex(name = "unique_user_post_like", def = "{'postId': 1, 'userId': 1}", unique = true)
+        @CompoundIndex(name = "unique_user_reply_like", def = "{'replyId': 1, 'userId': 1}", unique = true)
 })
-@Document(collection = "blog_post_likes")
-public class BlogPostLike {
+@Document(collection = "blog_reply_likes")
+public class ReplyLike {
     @Id
     private ObjectId id;
-
-    @Indexed(name = "idx_postId")
-    private ObjectId postId;
-
+    @Indexed(name = "idx_replyId")
+    private ObjectId replyId;
     private Long userId;
 }

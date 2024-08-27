@@ -1,4 +1,4 @@
-package dev.some.flare.blog;
+package dev.some.flare.blog.post;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -12,13 +12,15 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Data
 @NoArgsConstructor
 @CompoundIndexes({
-        @CompoundIndex(name = "unique_user_reply_like", def = "{'replyId': 1, 'userId': 1}", unique = true)
+        @CompoundIndex(name = "unique_user_post_like", def = "{'postId': 1, 'userId': 1}", unique = true)
 })
-@Document(collection = "blog_reply_likes")
-public class BlogReplyLike {
+@Document(collection = "blog_post_likes")
+public class PostLike {
     @Id
     private ObjectId id;
-    @Indexed(name = "idx_replyId")
-    private ObjectId replyId;
+
+    @Indexed(name = "idx_postId")
+    private ObjectId postId;
+
     private Long userId;
 }

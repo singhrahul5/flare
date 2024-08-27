@@ -1,5 +1,6 @@
 package dev.some.flare.auth;
 
+import dev.some.flare.auth.dto.*;
 import dev.some.flare.user.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -38,7 +39,7 @@ public class AuthController {
     }
 
 
-    @PostMapping("/{username:[a-z_][a-z0-9_]{0,19}}/password")
+    @PostMapping("/{username:^[a-z_][a-z0-9_]{0,19}$}/password")
     @PreAuthorize("hasRole('USER') and #username == authentication.name")
     public void updatePassword(@RequestBody @Valid UpdatePasswordRequest updatePasswordRequest,
                                @PathVariable String username, Authentication auth) {

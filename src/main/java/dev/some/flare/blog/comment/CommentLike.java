@@ -1,4 +1,4 @@
-package dev.some.flare.blog;
+package dev.some.flare.blog.comment.like;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -15,7 +15,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
         @CompoundIndex(name = "unique_user_comment_like", def = "{'commentId': 1, 'userId': 1}", unique = true)
 })
 @Document(collection = "blog_comment_likes")
-public class BlogCommentLike {
+public class CommentLike {
     @Id
     private ObjectId id;
     @Indexed(name = "idx_commentId")

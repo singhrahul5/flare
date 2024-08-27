@@ -1,7 +1,7 @@
 package dev.some.flare.user;
 
-import dev.some.flare.auth.RegisterRequest;
-import dev.some.flare.auth.ResetPasswordVerifyOtpRequest;
+import dev.some.flare.auth.dto.RegisterRequest;
+import dev.some.flare.auth.dto.ResetPasswordVerifyOtpRequest;
 import dev.some.flare.exception.InvalidOtpException;
 import dev.some.flare.exception.NotAvailableException;
 import dev.some.flare.utils.EmailService;
@@ -9,6 +9,7 @@ import dev.some.flare.utils.OtpHashService;
 import dev.some.flare.utils.RandomIdGeneratorService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.lang.NonNull;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -32,6 +33,10 @@ public class UserService implements UserDetailsService {
     public User loadUserByUsername(String usernameOrEmail) throws UsernameNotFoundException {
         return userRepository.findByUsernameOrEmail(usernameOrEmail, usernameOrEmail)
                 .orElseThrow(() -> new UsernameNotFoundException("Wrong Credentials."));
+    }
+
+    public User getUserByUserId(@NonNull Long id) {
+        return userRepository.findById(id).orElseThrow(() -> new UsernameNotFoundException("Wrong Credentials."));
     }
 
     public void registerUser(RegisterRequest registerRequest) {

@@ -1,4 +1,4 @@
-package dev.some.flare.blog;
+package dev.some.flare.blog.reply;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -8,12 +8,11 @@ import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
 
 @Data
 @NoArgsConstructor
 @Document(collection = "blog_replies")
-public class BlogReply {
+public class Reply {
     @Id
     private ObjectId id;
     @Indexed(name = "unique_replyId")

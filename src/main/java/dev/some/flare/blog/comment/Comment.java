@@ -1,4 +1,4 @@
-package dev.some.flare.blog;
+package dev.some.flare.blog.comment;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -12,7 +12,7 @@ import java.time.Instant;
 @Data
 @NoArgsConstructor
 @Document(collection = "blog_comments")
-public class BlogComment {
+public class Comment {
     @Id
     private ObjectId id;
     @Indexed(name = "unique_externalCommentId")

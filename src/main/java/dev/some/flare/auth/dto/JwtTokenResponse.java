@@ -1,4 +1,4 @@
-package dev.some.flare.auth;
+package dev.some.flare.auth.dto;
 
 import lombok.Data;
 

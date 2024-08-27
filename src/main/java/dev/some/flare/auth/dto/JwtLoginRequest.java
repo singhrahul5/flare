@@ -1,18 +1,13 @@
-package dev.some.flare.auth;
+package dev.some.flare.auth.dto;
 
-import dev.some.flare.validation.Otp;
 import dev.some.flare.validation.Password;
 import dev.some.flare.validation.UsernameOrEmail;
 import lombok.Data;
 
 @Data
-public class ResetPasswordVerifyOtpRequest {
+public class JwtLoginRequest {
     @UsernameOrEmail
     private final String username;
-
-    @Otp
-    private final String otp;
-
     @Password
-    private final String newPassword;
+    private final String password;
 }

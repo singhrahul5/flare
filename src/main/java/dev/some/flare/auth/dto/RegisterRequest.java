@@ -1,4 +1,4 @@
-package dev.some.flare.auth;
+package dev.some.flare.auth.dto;
 
 import dev.some.flare.validation.Password;
 import dev.some.flare.validation.Username;
