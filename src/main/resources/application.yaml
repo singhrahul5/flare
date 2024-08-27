@@ -1,6 +1,9 @@
 spring:
   application:
     name: flare
+  server:
+    servlet:
+      context-path: /api/v1
   jpa:
     show-sql: true
     hibernate:
