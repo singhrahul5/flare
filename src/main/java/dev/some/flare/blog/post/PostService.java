@@ -7,13 +7,14 @@ import dev.some.flare.user.User;
 import dev.some.flare.user.UserService;
 import dev.some.flare.utils.RandomIdGeneratorService;
 import jakarta.transaction.Transactional;
-import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.OptimisticLockingFailureException;
-import org.springframework.lang.NonNull;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.util.List;
 
 @RequiredArgsConstructor
 @Service
@@ -68,5 +69,22 @@ public class PostService {
                 .orElseThrow(() -> new NotFoundException("Blog not found."));
 
         return convertToPostResponse(post);
+    }
+
+    public List<PostResponse> findPostsWithPagination(int page, int size) {
+        Pageable pageable = PageRequest.of(page-1, size);
+        return postRepository.getTrendingPosts(pageable)
+                .stream()
+                .map(this::convertToPostResponse)
+                .toList();
+    }
+
+    public List<PostResponse> findPostsByUsernameWithPagination(String username, int page, int size) {
+        User user = userService.loadUserByUsername(username);
+        Pageable pageable = PageRequest.of(page-1, size);
+        return postRepository.findByAuthorIdOrderByCreatedAtDesc(user.getId(), pageable)
+                .stream()
+                .map(this::convertToPostResponse)
+                .toList();
     }
 }

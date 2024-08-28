@@ -12,7 +12,7 @@ import java.time.Instant;
 
 @Data
 @NoArgsConstructor
-@Document(collection = "posts")
+@Document(collection = "blog_posts")
 public class Post {
     @Id
     private ObjectId id;

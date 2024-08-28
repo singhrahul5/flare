@@ -19,9 +19,12 @@ import java.util.stream.Collectors;
 public class CustomResponseEntityExceptionHandler extends ResponseEntityExceptionHandler {
 
     @Override
-    protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex,
-                                                                  @NonNull HttpHeaders headers, @NonNull HttpStatusCode status,
-                                                                  @NonNull WebRequest request) {
+    protected ResponseEntity<Object> handleMethodArgumentNotValid(
+            MethodArgumentNotValidException ex,
+            @NonNull HttpHeaders headers,
+            @NonNull HttpStatusCode status,
+            @NonNull WebRequest request
+    ) {
         String errorMessage = ex.getFieldErrors().stream().findFirst().map(FieldError::getDefaultMessage).orElse("Bad" +
                 " Request");
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(status, errorMessage);
