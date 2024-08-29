@@ -9,4 +9,8 @@ public interface CustomBlogRepository {
     List<Blog> getTrendingBlogs(Pageable pageable);
 
     void incrementCommentCount(ObjectId id);
+
+    void incrementLikeCount(ObjectId id);
+
+    void decrementLikeCount(ObjectId id);
 }

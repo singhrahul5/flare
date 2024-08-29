@@ -1,5 +1,6 @@
 package dev.some.flare.blog;
 
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.bson.types.ObjectId;
@@ -23,4 +24,10 @@ public class BlogLike {
     private ObjectId blogId;
 
     private Long userId;
+
+    @Builder
+    public BlogLike(ObjectId blogId, Long userId) {
+        this.blogId = blogId;
+        this.userId = userId;
+    }
 }

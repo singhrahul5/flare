@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 
 @RequiredArgsConstructor
 @Service
@@ -23,6 +24,7 @@ public class BlogService {
     private final BlogRepository blogRepository;
     private final UserService userService;
     private final RandomIdGeneratorService randomIdGeneratorService;
+    private final BlogLikeRepository blogLikeRepository;
 
     @Transactional
     public void createBlog(CreateBlogRequest createBlogRequest, String username) {
@@ -98,5 +100,31 @@ public class BlogService {
     public Blog getBlogById(ObjectId id) {
         return blogRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Blog not found."));
+    }
+
+    private void likeBlog(ObjectId blogId, Long userId) {
+        blogLikeRepository.save(BlogLike.builder()
+                .blogId(blogId)
+                .userId(userId)
+                .build()
+        );
+        blogRepository.incrementLikeCount(blogId);
+    }
+
+    private void unlikeBlog(ObjectId blogLikeId, ObjectId blogId) {
+        blogLikeRepository.deleteById(blogLikeId);
+        blogRepository.decrementLikeCount(blogId);
+    }
+
+    @Transactional
+    public void toggleLikeOnBlog(String externalBlogId, String username) {
+        Blog blog = getBlogByExternalBlogId(externalBlogId);
+        User user = userService.loadUserByUsername(username);
+
+        Optional<BlogLike> optionalBlogLike = blogLikeRepository.findByBlogIdAndUserId(blog.getId(), user.getId());
+        if (optionalBlogLike.isEmpty())
+            likeBlog(blog.getId(), user.getId());
+        else
+            unlikeBlog(optionalBlogLike.get().getId(), blog.getId());
     }
 }

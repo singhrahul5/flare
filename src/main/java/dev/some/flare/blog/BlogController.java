@@ -79,4 +79,11 @@ public class BlogController {
 
         return ResponseEntity.ok(comments);
     }
+
+
+    @PostMapping("/{externalBlogId:^\\p{Alnum}{10}$}/like")
+    @PreAuthorize("hasRole('USER')")
+    public void likeOrUnlikeBlog(@PathVariable String externalBlogId, Authentication auth) {
+        blogService.toggleLikeOnBlog(externalBlogId, auth.getName());
+    }
 }

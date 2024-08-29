@@ -84,4 +84,18 @@ public class CustomBlogRepositoryImpl implements CustomBlogRepository {
         Update update = new Update().inc("commentCount", 1);
         mongoTemplate.updateFirst(query, update, Blog.class);
     }
+
+    @Override
+    public void incrementLikeCount(ObjectId id) {
+        Query query = new Query(Criteria.where("id").is(id));
+        Update update = new Update().inc("likeCount", 1);
+        mongoTemplate.updateFirst(query, update, Blog.class);
+    }
+
+    @Override
+    public void decrementLikeCount(ObjectId id) {
+        Query query = new Query(Criteria.where("id").is(id));
+        Update update = new Update().inc("likeCount", -1);
+        mongoTemplate.updateFirst(query, update, Blog.class);
+    }
 }
