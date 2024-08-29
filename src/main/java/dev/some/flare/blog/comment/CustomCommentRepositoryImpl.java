@@ -1,4 +1,4 @@
-package dev.some.flare.blog;
+package dev.some.flare.blog.comment;
 
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
@@ -7,22 +7,21 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.*;
 import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
 @Repository
 @RequiredArgsConstructor
-public class CustomBlogRepositoryImpl implements CustomBlogRepository {
+public class CustomCommentRepositoryImpl implements CustomCommentRepository {
 
     private final MongoTemplate mongoTemplate;
 
     @Override
-    public List<Blog> getTrendingBlogs(Pageable pageable) {
-
-        // Step 1: Calculate timeDifference in hours
+    public List<Comment> getPopuralComments(ObjectId blogId, Pageable pageable) {
+        // filter comments by blogId
+        AggregationOperation filterCommentsByBlogId = Aggregation.match(Criteria.where("blogId").is(blogId));
+        // Calculate timeDifference in hours
         AggregationOperation addTimeDifference = Aggregation.addFields()
                 .addField("timeDifference")
                 .withValue(
@@ -31,7 +30,7 @@ public class CustomBlogRepositoryImpl implements CustomBlogRepository {
                         ).divideBy(1000 * 60 * 60)
                 ).build();
 
-        // Step 2: Calculate timeDecay using $cond
+        // Calculate timeDecay using $cond
         ConditionalOperators.Cond timeDecayCondition = ConditionalOperators.when(Criteria.where("timeDifference").gt(0))
                 .thenValueOf(
                         ArithmeticOperators.Divide.valueOf(1).divideBy(
@@ -45,43 +44,37 @@ public class CustomBlogRepositoryImpl implements CustomBlogRepository {
                 .withValue(timeDecayCondition)
                 .build();
 
-        // Step 3: Calculate composite score
+        // Calculate composite score
         AggregationOperation addScore = Aggregation.addFields()
                 .addField("score")
                 .withValue(
                         ArithmeticOperators.Add.valueOf(
                                 ArithmeticOperators.Multiply.valueOf(1.0).multiplyBy("likeCount")
                         ).add(
-                                ArithmeticOperators.Multiply.valueOf(1.5).multiplyBy("commentCount")
+                                ArithmeticOperators.Multiply.valueOf(1.5).multiplyBy("replyCount")
                         ).add(
                                 ArithmeticOperators.Multiply.valueOf(2.0).multiplyBy("timeDecay")
                         )
                 ).build();
 
-        // Step 4: Sort by score
+        // Sort by score
         AggregationOperation sortByScore = Aggregation.sort(Sort.by("score").descending());
 
-        // Step 5: Pagination: Skip and Limit
+        // Pagination: Skip and Limit
         long offset = pageable.getOffset();
         int size = pageable.getPageSize();
         AggregationOperation skip = Aggregation.skip(offset);
         AggregationOperation limit = Aggregation.limit(size);
 
-        // Step 6: Build the aggregation pipeline with pagination
+        // Build the aggregation pipeline with pagination
 
-        TypedAggregation<Blog> typedAggregation = TypedAggregation.newAggregation(
-                Blog.class, addTimeDifference, addTimeDecay, addScore, sortByScore, skip, limit
+        TypedAggregation<Comment> typedAggregation = TypedAggregation.newAggregation(
+                Comment.class, filterCommentsByBlogId, addTimeDifference, addTimeDecay,
+                addScore, sortByScore, skip, limit
         );
 
-        // Step 7: Execute the aggregation query
-        AggregationResults<Blog> results = mongoTemplate.aggregate(typedAggregation, Blog.class);
+        // Execute the aggregation query
+        AggregationResults<Comment> results = mongoTemplate.aggregate(typedAggregation, Comment.class);
         return results.getMappedResults();
-    }
-
-    @Override
-    public void incrementCommentCount(ObjectId id) {
-        Query query = new Query(Criteria.where("id").is(id));
-        Update update = new Update().inc("commentCount", 1);
-        mongoTemplate.updateFirst(query, update, Blog.class);
     }
 }

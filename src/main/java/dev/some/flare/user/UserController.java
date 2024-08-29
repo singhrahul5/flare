@@ -26,7 +26,7 @@ public class UserController {
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
-        if(page <= 0)
+        if (page <= 0)
             page = 1;
 
         List<BlogResponse> blogs = blogService.findBlogsByUsernameWithPagination(username, page, size);

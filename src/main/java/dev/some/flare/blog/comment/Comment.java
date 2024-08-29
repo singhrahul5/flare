@@ -1,5 +1,6 @@
 package dev.some.flare.blog.comment;
 
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.bson.types.ObjectId;
@@ -24,4 +25,15 @@ public class Comment {
     private Long likeCount;
     private Long replyCount;
 
+    @Builder
+    public Comment(String externalCommentId, ObjectId blogId, Long authorId, String content, Instant createdAt,
+                   Long likeCount, Long replyCount) {
+        this.externalCommentId = externalCommentId;
+        this.blogId = blogId;
+        this.authorId = authorId;
+        this.content = content;
+        this.createdAt = createdAt;
+        this.likeCount = likeCount;
+        this.replyCount = replyCount;
+    }
 }

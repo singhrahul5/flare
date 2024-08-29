@@ -1,13 +1,14 @@
 package dev.some.flare.blog;
 
-import dev.some.flare.blog.dto.CreateBlogRequest;
 import dev.some.flare.blog.dto.BlogResponse;
+import dev.some.flare.blog.dto.CreateBlogRequest;
 import dev.some.flare.exception.NotFoundException;
 import dev.some.flare.user.User;
 import dev.some.flare.user.UserService;
 import dev.some.flare.utils.RandomIdGeneratorService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.bson.types.ObjectId;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -64,15 +65,17 @@ public class BlogService {
                 .build();
     }
 
-    public BlogResponse getBlogByExternalBlogId(String externalBlogId) {
-        Blog blog = blogRepository.findByExternalBlogId(externalBlogId)
+    public Blog getBlogByExternalBlogId(String externalBlogId) {
+        return blogRepository.findByExternalBlogId(externalBlogId)
                 .orElseThrow(() -> new NotFoundException("Blog not found."));
+    }
 
-        return convertToBlogResponse(blog);
+    public BlogResponse getBlogResponseByExternalBlogId(String externalBlogId) {
+        return convertToBlogResponse(getBlogByExternalBlogId(externalBlogId));
     }
 
     public List<BlogResponse> findBlogsWithPagination(int page, int size) {
-        Pageable pageable = PageRequest.of(page-1, size);
+        Pageable pageable = PageRequest.of(page - 1, size);
         return blogRepository.getTrendingBlogs(pageable)
                 .stream()
                 .map(this::convertToBlogResponse)
@@ -81,10 +84,19 @@ public class BlogService {
 
     public List<BlogResponse> findBlogsByUsernameWithPagination(String username, int page, int size) {
         User user = userService.loadUserByUsername(username);
-        Pageable pageable = PageRequest.of(page-1, size);
+        Pageable pageable = PageRequest.of(page - 1, size);
         return blogRepository.findByAuthorIdOrderByCreatedAtDesc(user.getId(), pageable)
                 .stream()
                 .map(this::convertToBlogResponse)
                 .toList();
+    }
+
+    public void incrementCommentCount(ObjectId id) {
+        blogRepository.incrementCommentCount(id);
+    }
+
+    public Blog getBlogById(ObjectId id) {
+        return blogRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Blog not found."));
     }
 }
