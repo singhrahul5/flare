@@ -1,7 +1,7 @@
-package dev.some.flare.blog.post;
+package dev.some.flare.blog;
 
-import dev.some.flare.blog.post.dto.CreatePostRequest;
-import dev.some.flare.blog.post.dto.PostResponse;
+import dev.some.flare.blog.dto.CreateBlogRequest;
+import dev.some.flare.blog.dto.BlogResponse;
 import dev.some.flare.exception.NotFoundException;
 import dev.some.flare.user.User;
 import dev.some.flare.user.UserService;
@@ -18,13 +18,13 @@ import java.util.List;
 
 @RequiredArgsConstructor
 @Service
-public class PostService {
-    private final PostRepository postRepository;
+public class BlogService {
+    private final BlogRepository blogRepository;
     private final UserService userService;
     private final RandomIdGeneratorService randomIdGeneratorService;
 
     @Transactional
-    public void createPost(CreatePostRequest createPostRequest, String username) {
+    public void createBlog(CreateBlogRequest createBlogRequest, String username) {
         User user = userService.loadUserByUsername(username);
 
         String uniqueRandomId;
@@ -32,16 +32,16 @@ public class PostService {
         do {
             uniqueRandomId = randomIdGeneratorService.generateRandomId();
             try {
-                if (!postRepository.existsByExternalPostId(uniqueRandomId)) {
-                    Post newPost = Post.builder()
-                            .externalPostId(uniqueRandomId)
+                if (!blogRepository.existsByExternalBlogId(uniqueRandomId)) {
+                    Blog newBlog = Blog.builder()
+                            .externalBlogId(uniqueRandomId)
                             .authorId(user.getId())
-                            .content(createPostRequest.getContent())
+                            .content(createBlogRequest.getContent())
                             .createdAt(Instant.now())
                             .likeCount(0L)
                             .commentCount(0L)
                             .build();
-                    postRepository.save(newPost);
+                    blogRepository.save(newBlog);
                     return;
                 }
             } catch (OptimisticLockingFailureException e) {
@@ -52,39 +52,39 @@ public class PostService {
         } while (true);
     }
 
-    private PostResponse convertToPostResponse(Post post) {
-        String authorId = userService.getUserByUserId(post.getAuthorId()).getUsername();
-        return PostResponse.builder()
-                .postId(post.getExternalPostId())
+    private BlogResponse convertToBlogResponse(Blog blog) {
+        String authorId = userService.getUserByUserId(blog.getAuthorId()).getUsername();
+        return BlogResponse.builder()
+                .blogId(blog.getExternalBlogId())
                 .authorId(authorId)
-                .content(post.getContent())
-                .createdAt(post.getCreatedAt())
-                .likeCount(post.getLikeCount())
-                .commentCount(post.getCommentCount())
+                .content(blog.getContent())
+                .createdAt(blog.getCreatedAt())
+                .likeCount(blog.getLikeCount())
+                .commentCount(blog.getCommentCount())
                 .build();
     }
 
-    public PostResponse getPostByExternalPostId(String externalPostId) {
-        Post post = postRepository.findByExternalPostId(externalPostId)
+    public BlogResponse getBlogByExternalBlogId(String externalBlogId) {
+        Blog blog = blogRepository.findByExternalBlogId(externalBlogId)
                 .orElseThrow(() -> new NotFoundException("Blog not found."));
 
-        return convertToPostResponse(post);
+        return convertToBlogResponse(blog);
     }
 
-    public List<PostResponse> findPostsWithPagination(int page, int size) {
+    public List<BlogResponse> findBlogsWithPagination(int page, int size) {
         Pageable pageable = PageRequest.of(page-1, size);
-        return postRepository.getTrendingPosts(pageable)
+        return blogRepository.getTrendingBlogs(pageable)
                 .stream()
-                .map(this::convertToPostResponse)
+                .map(this::convertToBlogResponse)
                 .toList();
     }
 
-    public List<PostResponse> findPostsByUsernameWithPagination(String username, int page, int size) {
+    public List<BlogResponse> findBlogsByUsernameWithPagination(String username, int page, int size) {
         User user = userService.loadUserByUsername(username);
         Pageable pageable = PageRequest.of(page-1, size);
-        return postRepository.findByAuthorIdOrderByCreatedAtDesc(user.getId(), pageable)
+        return blogRepository.findByAuthorIdOrderByCreatedAtDesc(user.getId(), pageable)
                 .stream()
-                .map(this::convertToPostResponse)
+                .map(this::convertToBlogResponse)
                 .toList();
     }
 }

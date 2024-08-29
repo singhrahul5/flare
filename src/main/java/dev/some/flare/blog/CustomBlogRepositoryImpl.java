@@ -1,4 +1,4 @@
-package dev.some.flare.blog.post;
+package dev.some.flare.blog;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -12,12 +12,12 @@ import java.util.List;
 
 @Repository
 @RequiredArgsConstructor
-public class CustomPostRepositoryImpl implements CustomPostRepository {
+public class CustomBlogRepositoryImpl implements CustomBlogRepository {
 
     private final MongoTemplate mongoTemplate;
 
     @Override
-    public List<Post> getTrendingPosts(Pageable pageable) {
+    public List<Blog> getTrendingBlogs(Pageable pageable) {
 
         // Step 1: Calculate timeDifference in hours
         AggregationOperation addTimeDifference = Aggregation.addFields()
@@ -66,12 +66,12 @@ public class CustomPostRepositoryImpl implements CustomPostRepository {
 
         // Step 6: Build the aggregation pipeline with pagination
 
-        TypedAggregation<Post> typedAggregation = TypedAggregation.newAggregation(
-                Post.class, addTimeDifference, addTimeDecay, addScore, sortByScore, skip, limit
+        TypedAggregation<Blog> typedAggregation = TypedAggregation.newAggregation(
+                Blog.class, addTimeDifference, addTimeDecay, addScore, sortByScore, skip, limit
         );
 
         // Step 7: Execute the aggregation query
-        AggregationResults<Post> results = mongoTemplate.aggregate(typedAggregation, Post.class);
+        AggregationResults<Blog> results = mongoTemplate.aggregate(typedAggregation, Blog.class);
         return results.getMappedResults();
     }
 

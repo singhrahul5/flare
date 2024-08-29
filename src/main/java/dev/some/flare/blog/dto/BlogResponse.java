@@ -1,4 +1,4 @@
-package dev.some.flare.blog.post.dto;
+package dev.some.flare.blog.dto;
 
 import lombok.Builder;
 import lombok.Data;
@@ -7,8 +7,8 @@ import java.time.Instant;
 
 @Data
 @Builder
-public class PostResponse {
-    private String postId;
+public class BlogResponse {
+    private String blogId;
     private String authorId;
     private String content;
     private Instant createdAt;

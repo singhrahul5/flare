@@ -17,7 +17,7 @@ public class Comment {
     private ObjectId id;
     @Indexed(name = "unique_externalCommentId")
     private String externalCommentId;
-    private ObjectId postId;
+    private ObjectId blogId;
     private Long authorId;
     private String content;
     private Instant createdAt;

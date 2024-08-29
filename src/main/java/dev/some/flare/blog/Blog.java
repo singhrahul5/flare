@@ -1,4 +1,4 @@
-package dev.some.flare.blog.post;
+package dev.some.flare.blog;
 
 import lombok.Builder;
 import lombok.Data;
@@ -12,12 +12,12 @@ import java.time.Instant;
 
 @Data
 @NoArgsConstructor
-@Document(collection = "blog_posts")
-public class Post {
+@Document(collection = "blogs")
+public class Blog {
     @Id
     private ObjectId id;
-    @Indexed(name = "unique_externalPostId")
-    private String externalPostId;
+    @Indexed(name = "unique_externalBlogId")
+    private String externalBlogId;
     private Long authorId;
     private String content;
     private Instant createdAt;
@@ -25,9 +25,9 @@ public class Post {
     private Long commentCount;
 
     @Builder
-    public Post(String externalPostId, Long authorId, String content, Instant createdAt, Long likeCount,
+    public Blog(String externalBlogId, Long authorId, String content, Instant createdAt, Long likeCount,
                 Long commentCount) {
-        this.externalPostId = externalPostId;
+        this.externalBlogId = externalBlogId;
         this.authorId = authorId;
         this.content = content;
         this.createdAt = createdAt;

@@ -18,7 +18,7 @@ public class Reply {
     @Indexed(name = "unique_replyId")
     private String externalReplyId;
     private ObjectId commentId;
-    private ObjectId postId;
+    private ObjectId blogId;
     private Long authorId;
     private String content;
     private Instant createdAt;
