@@ -1,6 +1,5 @@
 package dev.some.flare.blog;
 
-import dev.some.flare.blog.comment.Comment;
 import dev.some.flare.blog.comment.CommentService;
 import dev.some.flare.blog.dto.BlogResponse;
 import dev.some.flare.blog.dto.CommentResponse;
@@ -85,5 +84,14 @@ public class BlogController {
     @PreAuthorize("hasRole('USER')")
     public void likeOrUnlikeBlog(@PathVariable String externalBlogId, Authentication auth) {
         blogService.toggleLikeOnBlog(externalBlogId, auth.getName());
+    }
+
+    @PostMapping("/{externalBlogId:^\\p{Alnum}{10}$}/comments/{externalCommentId:^\\p{Alnum}{10}$}/like")
+    @PreAuthorize("hasRole('USER')")
+    public void likeOrUnlikeComment(@PathVariable String externalBlogId,
+                                    @PathVariable String externalCommentId,
+                                    Authentication auth
+    ) {
+        commentService.toggleLikeOnComment(externalBlogId, externalCommentId, auth.getName());
     }
 }

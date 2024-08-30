@@ -7,4 +7,8 @@ import java.util.List;
 
 public interface CustomCommentRepository {
     List<Comment> getPopuralComments(ObjectId blogId, Pageable pageable);
+
+    void incrementLikeCount(ObjectId id);
+
+    void decrementLikeCount(ObjectId id);
 }

@@ -1,5 +1,6 @@
-package dev.some.flare.blog.comment.like;
+package dev.some.flare.blog.comment;
 
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.bson.types.ObjectId;
@@ -21,4 +22,10 @@ public class CommentLike {
     @Indexed(name = "idx_commentId")
     private ObjectId commentId;
     private Long userId;
+
+    @Builder
+    public CommentLike(ObjectId commentId, Long userId) {
+        this.commentId = commentId;
+        this.userId = userId;
+    }
 }
