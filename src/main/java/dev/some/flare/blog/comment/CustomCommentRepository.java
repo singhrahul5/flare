@@ -11,4 +11,6 @@ public interface CustomCommentRepository {
     void incrementLikeCount(ObjectId id);
 
     void decrementLikeCount(ObjectId id);
+
+    void incrementReplyCount(ObjectId id);
 }

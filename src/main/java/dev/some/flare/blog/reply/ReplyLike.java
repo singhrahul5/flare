@@ -1,5 +1,6 @@
 package dev.some.flare.blog.reply;
 
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.bson.types.ObjectId;
@@ -21,4 +22,10 @@ public class ReplyLike {
     @Indexed(name = "idx_replyId")
     private ObjectId replyId;
     private Long userId;
+
+    @Builder
+    public ReplyLike(ObjectId replyId, Long userId) {
+        this.replyId = replyId;
+        this.userId = userId;
+    }
 }

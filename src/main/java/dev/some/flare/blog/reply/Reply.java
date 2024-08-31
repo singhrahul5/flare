@@ -1,5 +1,6 @@
 package dev.some.flare.blog.reply;
 
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.bson.types.ObjectId;
@@ -23,4 +24,17 @@ public class Reply {
     private String content;
     private Instant createdAt;
     private Long likeCount;
+
+    @Builder
+    public Reply(String externalReplyId, ObjectId commentId, ObjectId blogId, Long authorId, String content,
+                 Instant createdAt, Long likeCount
+    ) {
+        this.externalReplyId = externalReplyId;
+        this.commentId = commentId;
+        this.blogId = blogId;
+        this.authorId = authorId;
+        this.content = content;
+        this.createdAt = createdAt;
+        this.likeCount = likeCount;
+    }
 }

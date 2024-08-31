@@ -84,6 +84,7 @@ public class CommentService {
         return commentRepository.findByExternalCommentId(externalCommnetId)
                 .orElseThrow(() -> new NotFoundException("Comment not fount"));
     }
+
     public Comment getCommentByExternalCommentIdAndBlogId(String externalCommnetId, ObjectId blogId) {
         return commentRepository.findByExternalCommentIdAndBlogId(externalCommnetId, blogId)
                 .orElseThrow(() -> new NotFoundException("Comment not fount"));
@@ -108,10 +109,20 @@ public class CommentService {
         Comment comment = getCommentByExternalCommentIdAndBlogId(externalCommentId, blog.getId());
         User user = userService.loadUserByUsername(username);
 
-        Optional<CommentLike> optionalCommentLike = commentLikeRepository.findByCommentIdAndUserId(comment.getId(), user.getId());
+        Optional<CommentLike> optionalCommentLike = commentLikeRepository.findByCommentIdAndUserId(comment.getId(),
+                user.getId());
         if (optionalCommentLike.isEmpty())
             likeComment(comment.getId(), user.getId());
         else
             unlikeComment(optionalCommentLike.get().getId(), comment.getId());
+    }
+
+    public void incrementReplyCount(ObjectId id) {
+        commentRepository.incrementReplyCount(id);
+    }
+
+    public Comment getCommentById(ObjectId id) {
+        return commentRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Comment Not Found."));
     }
 }

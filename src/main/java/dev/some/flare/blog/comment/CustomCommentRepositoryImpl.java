@@ -1,5 +1,6 @@
 package dev.some.flare.blog.comment;
 
+import com.mongodb.client.result.UpdateResult;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
 import org.springframework.data.domain.Pageable;
@@ -69,5 +70,12 @@ public class CustomCommentRepositoryImpl implements CustomCommentRepository {
         mongoTemplate.updateFirst(Query.query(Criteria.where("id").is(id)),
                 new Update().inc("likeCount", -1),
                 Comment.class);
+    }
+
+    @Override
+    public void incrementReplyCount(ObjectId id) {
+        Query query = new Query(Criteria.where("id").is(id));
+        Update update = new Update().inc("replyCount", 1);
+        UpdateResult updateResult = mongoTemplate.updateFirst(query, update, Comment.class);
     }
 }
